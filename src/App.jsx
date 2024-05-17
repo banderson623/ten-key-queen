@@ -43,6 +43,7 @@ function CellEntry({ goal, focused, onChange }) {
   const [value, setValue] = React.useState("");
   const [isCorrect, setIsCorrect] = React.useState("");
   const [extraStyle, setExtraStyle] = React.useState("");
+  const [soFarSoGood, setSoFarSoGood] = React.useState(false);
 
   React.useEffect(() => {
     setIsCorrect(value == goal)
@@ -52,19 +53,29 @@ function CellEntry({ goal, focused, onChange }) {
       fireConfetti()
       fireConfetti()
     }
-
   }, [goal, value]);
 
   React.useEffect(() => {
     const hasValue = value.trim().length > 0;
+    const whatIsEnteredSoFarMatches = goal.substring(0, value.length) == value;
+
+    setSoFarSoGood(previous => {
+      const youJustMadeAMistake = previous && !whatIsEnteredSoFarMatches;
+      if(youJustMadeAMistake) {
+        setExtraStyle("bg-purple-200 animate-slam");
+      } else if(!isCorrect && hasValue) {
+        setExtraStyle("bg-purple-200");
+      }
+      return whatIsEnteredSoFarMatches;
+    })
 
     if (isCorrect) {
       setExtraStyle("bg-blue-600 text-white border-blue-500");
     }
 
-    if (hasValue && !isCorrect) {
-      setExtraStyle("bg-purple-200");
-    }
+    // if (hasValue && !isCorrect) {
+    //   setExtraStyle("bg-purple-200");
+    // }
 
     if (!hasValue || (!isCorrect && focused)) {
       setExtraStyle("");
