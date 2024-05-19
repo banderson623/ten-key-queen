@@ -38,7 +38,7 @@ export default {
       },
       animation: {
         slam: 'slam 0.25s ease-out',
-        'shake-lr': 'shakeLR 0.7s cubic-bezier(0.645, 0.045, 0.355, 1.000) both',
+        'shake-lr': 'shakeLR 0.5s cubic-bezier(0.645, 0.045, 0.355, 1.000) both',
       },
     },
   },

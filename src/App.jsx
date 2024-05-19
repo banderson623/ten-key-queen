@@ -1,5 +1,12 @@
 import React from 'react'
+import useSound from 'use-sound';
+
+import { SoundOnIcon, SoundOffIcon } from './icons';
 import { fireConfetti, launchFireworks } from './confetti';
+import { useLocalStorage } from './localstorage-hook';
+
+const AudioContext = React.createContext(null);
+
 
 function generateTable(rows = 4, columns = 3) {
   const table = [];
@@ -45,11 +52,19 @@ function CellEntry({ goal, focused, onChange }) {
   const [extraStyle, setExtraStyle] = React.useState("");
   const [soFarSoGood, setSoFarSoGood] = React.useState(false);
 
+  const {audioEnabled} = React.useContext(AudioContext);
+  const [playKey] = useSound('assets/bite.mp3',{ volume: 0.5, soundEnabled : audioEnabled});
+  const [playSuccess] = useSound('assets/success.mp3',{ volume: 0.35, soundEnabled : audioEnabled });
+  const [playFail] = useSound('assets/error.mp3',{ volume: 0.35, soundEnabled : audioEnabled });
+
   React.useEffect(() => {
     setIsCorrect(value == goal)
     onChange(value == goal)
 
+    playKey();
+
     if (value == goal) {
+      playSuccess();
       fireConfetti()
       fireConfetti()
     }
@@ -63,6 +78,7 @@ function CellEntry({ goal, focused, onChange }) {
       const youJustMadeAMistake = previous && !whatIsEnteredSoFarMatches;
       if(youJustMadeAMistake) {
         setExtraStyle("bg-purple-200 animate-shake-lr");
+        playFail();
       } else if(!isCorrect && hasValue) {
         setExtraStyle("bg-purple-200");
       }
@@ -72,10 +88,6 @@ function CellEntry({ goal, focused, onChange }) {
     if (isCorrect) {
       setExtraStyle("bg-blue-600 text-white border-blue-500");
     }
-
-    // if (hasValue && !isCorrect) {
-    //   setExtraStyle("bg-purple-200");
-    // }
 
     if (!hasValue || (!isCorrect && focused)) {
       setExtraStyle("");
@@ -136,20 +148,12 @@ function TestTable({ goal, onChange }) {
   )
 }
 
-function Stats({ percentComplete }) {
-  return (
-    <div className="flex items-center p-4">
-      <p className="text-6xl text-slate-400">{Math.round(percentComplete * 100)}
-        <span className="text-slate-300">%</span>
-      </p>
-    </div>
-  );
-}
 
 function App() {
   const [goal, setGoal] = React.useState(generateTable);
   const [percentComplete, setPercentComplete] = React.useState(0);
   const [isComplete, setIsComplete] = React.useState(0);
+  const [audioEnabled, setAudioEnabled] = useLocalStorage('audio-enabled', true);
 
   React.useEffect(() => {
     setIsComplete(percentComplete == 1.0);
@@ -160,20 +164,21 @@ function App() {
   }
 
   return (
-    <GameControls requestReset={reset} isComplete={isComplete} cellCount={goal.length * goal[0].length}>
-      <div className="flex">
-        <GoalTable table={goal} />
-        <TestTable goal={goal} onChange={setPercentComplete} />
-        {/* <Stats percentComplete={percentComplete} /> */}
-      </div>
-    </GameControls>
+    <AudioContext.Provider value={{audioEnabled, setAudioEnabled}}>
+      <GameControls requestReset={reset} isComplete={isComplete} cellCount={goal.length * goal[0].length}>
+        <div className="flex">
+          <GoalTable table={goal} />
+          <TestTable goal={goal} onChange={setPercentComplete} />
+        </div>
+      </GameControls>
+    </AudioContext.Provider>
   )
 }
 
 function Instructions({ onStart }) {
   return (
     <>
-      <div className="absolute w-full h-full bg-white opacity-40"></div>
+      <div className="absolute w-full h-full bg-black opacity-20"></div>
       <div className="absolute w-full h-full backdrop-blur-sm"></div>
 
       <div className="absolute w-1/2 text-center bg-white rounded-xl p-8 shadow">
@@ -224,6 +229,9 @@ function GameControls({ requestReset, children, isComplete, cellCount }) {
   const [startTime, setStartTime] = React.useState(null);
   const [endTime, setEndTime] = React.useState(null);
 
+  const {audioEnabled} = React.useContext(AudioContext);
+  const [playWin] = useSound('assets/win.mp3',{ volume: 0.5, soundEnabled : audioEnabled});
+
   const startGame = () => {
     setState('playing');
     setStartTime(new Date());
@@ -238,8 +246,9 @@ function GameControls({ requestReset, children, isComplete, cellCount }) {
   React.useEffect(() => {
     if (state == 'playing' && isComplete) {
       launchFireworks();
+      playWin();
 
-      setTimeout(() => { setState('complete') }, 5000);
+      setTimeout(() => { setState('complete') }, 2000);
       setEndTime(end => end ?? new Date());
     }
   }, [isComplete, state])
@@ -250,10 +259,23 @@ function GameControls({ requestReset, children, isComplete, cellCount }) {
 
       <h1 className="h-14 text-4xl font-extrabold">{state == 'playing' ? '10 Key Queen 👸' : ''}</h1>
       {children}
-      {state == 'playing' && (<p className="mt-4 text-slate-400">Queen's tip: Use tab to move between cells.</p>)}
+      {state == 'playing' && (<><span className="mt-4 text-slate-400">Queen's tip: Use tab to move between cells.</span><SoundPreference /></>)}
 
       {state == 'complete' && <Score cellCount={cellCount} duration={endTime - startTime} onClose={reset} />}
     </div>
+  )
+}
+
+function SoundPreference() {
+  const {audioEnabled, setAudioEnabled} = React.useContext(AudioContext);
+
+  return (
+    <button className="text-slate-400 hover:bg-slate-300 p-4 rounded-full"
+        onClick={()=> {setAudioEnabled(!audioEnabled)}}>
+      <span className="flex">
+        {audioEnabled ? <SoundOnIcon /> : <SoundOffIcon />}
+      </span>
+    </button>
   )
 }
 
