@@ -62,7 +62,7 @@ function CellEntry({ goal, focused, onChange }) {
     setSoFarSoGood(previous => {
       const youJustMadeAMistake = previous && !whatIsEnteredSoFarMatches;
       if(youJustMadeAMistake) {
-        setExtraStyle("bg-purple-200 animate-slam");
+        setExtraStyle("bg-purple-200 animate-shake-lr");
       } else if(!isCorrect && hasValue) {
         setExtraStyle("bg-purple-200");
       }
