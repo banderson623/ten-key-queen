@@ -53,9 +53,9 @@ function CellEntry({ goal, focused, onChange }) {
   const [soFarSoGood, setSoFarSoGood] = React.useState(false);
 
   const {audioEnabled} = React.useContext(AudioContext);
-  const [playKey] = useSound('assets/bite.mp3',{ volume: 0.5, soundEnabled : audioEnabled});
-  const [playSuccess] = useSound('assets/success.mp3',{ volume: 0.35, soundEnabled : audioEnabled });
-  const [playFail] = useSound('assets/error.mp3',{ volume: 0.35, soundEnabled : audioEnabled });
+  const [playKey] = useSound('./bite.mp3',{ volume: 0.5, soundEnabled : audioEnabled});
+  const [playSuccess] = useSound('./success.mp3',{ volume: 0.35, soundEnabled : audioEnabled });
+  const [playFail] = useSound('./error.mp3',{ volume: 0.35, soundEnabled : audioEnabled });
 
   React.useEffect(() => {
     setIsCorrect(value == goal)
@@ -230,7 +230,7 @@ function GameControls({ requestReset, children, isComplete, cellCount }) {
   const [endTime, setEndTime] = React.useState(null);
 
   const {audioEnabled} = React.useContext(AudioContext);
-  const [playWin] = useSound('assets/win.mp3',{ volume: 0.5, soundEnabled : audioEnabled});
+  const [playWin] = useSound('./win.mp3',{ volume: 0.5, soundEnabled : audioEnabled});
 
   const startGame = () => {
     setState('playing');
