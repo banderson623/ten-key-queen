@@ -8,6 +8,23 @@ function randomInRange(min, max) {
   return Math.random() * (max - min) + min;
 }
 
+
+export function sparkDrip(count = 3) {
+  confetti({
+    particleCount: Math.sqrt(count*5),
+    colors: ['#cbd5e1', '#d6dbe1', '#fff'],
+    shapes: ['circle'],
+    // spread: 50,
+    spread: 180,
+    ticks: 20,
+    scalar: 0.5,
+    flat: true,
+    startVelocity: Math.sqrt(10 * count),
+    angle: 225,
+    origin: { x: 1, y: 0 }
+  });
+}
+
 export function fireConfetti() {
   confetti({
     angle: randomInRange(0, 360),
