@@ -15,10 +15,18 @@ console.log(GAME_MODE);
 
 function generateTable(rows = 4, columns = 3) {
   console.log('game mode:', GAME_MODE)
-  if(GAME_MODE.includes('hard')) {
+
+  if (GAME_MODE.includes('small')) {
+    rows = 2;
+    columns = 2;
+  }
+
+
+  if (GAME_MODE.includes('hard')) {
     rows = 8;
     columns = 8;
   }
+
   const table = [];
   for (let row = 0; row < rows; row++) {
     const data = [];
@@ -64,12 +72,12 @@ function CellEntry({ goal, focused, onChange }) {
   const [extraStyle, setExtraStyle] = React.useState("");
   const [soFarSoGood, setSoFarSoGood] = React.useState(false);
 
-  const {audioEnabled} = React.useContext(AudioContext);
-  const {onCorrectValueEntered, onWrongValueEntered, resetAllAnswersRequest} = React.useContext(SteaksContext);
+  const { audioEnabled } = React.useContext(AudioContext);
+  const { onCorrectValueEntered, onWrongValueEntered, resetAllAnswersRequest } = React.useContext(SteaksContext);
 
-  const [playKey] = useSound('./bite.mp3',{ volume: 0.5, soundEnabled : audioEnabled});
-  const [playSuccess] = useSound('./success.mp3',{ volume: 0.35, soundEnabled : audioEnabled });
-  const [playFail] = useSound('./error.mp3',{ volume: 0.35, soundEnabled : audioEnabled });
+  const [playKey] = useSound('./bite.mp3', { volume: 0.5, soundEnabled: audioEnabled });
+  const [playSuccess] = useSound('./success.mp3', { volume: 0.35, soundEnabled: audioEnabled });
+  const [playFail] = useSound('./error.mp3', { volume: 0.35, soundEnabled: audioEnabled });
 
   const [mistake, setMistakes] = React.useState(0);
 
@@ -95,17 +103,17 @@ function CellEntry({ goal, focused, onChange }) {
     const hasValue = value.trim().length > 0;
     const whatIsEnteredSoFarMatches = goal.substring(0, value.length) == value;
 
-    if(whatIsEnteredSoFarMatches && hasValue) {
+    if (whatIsEnteredSoFarMatches && hasValue) {
       onCorrectValueEntered();
     }
 
     setSoFarSoGood(previous => {
       const youJustMadeAMistake = previous && !whatIsEnteredSoFarMatches;
-      if(youJustMadeAMistake) {
+      if (youJustMadeAMistake) {
         setExtraStyle("bg-purple-200 animate-shake-lr");
         playFail();
         setMistakes(mistakes => mistakes + 1);
-      } else if(!isCorrect && hasValue) {
+      } else if (!isCorrect && hasValue) {
         setExtraStyle("bg-purple-200");
       }
       return whatIsEnteredSoFarMatches;
@@ -198,42 +206,42 @@ function App() {
   }
 
   return (
-    <AudioContext.Provider value={{audioEnabled, setAudioEnabled}}>
-        <GameControls requestReset={reset} isComplete={isComplete} cellCount={goal.length * goal[0].length}>
-          <div className="flex">
-            <GoalTable table={goal} />
-            <TestTable goal={goal} onChange={setPercentComplete} />
-          </div>
-        </GameControls>
+    <AudioContext.Provider value={{ audioEnabled, setAudioEnabled }}>
+      <GameControls requestReset={reset} isComplete={isComplete} cellCount={goal.length * goal[0].length}>
+        <div className="flex">
+          <GoalTable table={goal} />
+          <TestTable goal={goal} onChange={setPercentComplete} />
+        </div>
+      </GameControls>
 
     </AudioContext.Provider>
   )
 }
 
-function StreakCounter ({streak}) {
+function StreakCounter({ streak }) {
 
   React.useEffect(() => {
     const interval = setInterval(() => {
-      if(streak > 0) {
+      if (streak > 0) {
         sparkDrip(streak);
       }
-    }, 1000 / streak );
+    }, 1000 / streak);
     return () => {
       console.log('clearing interval for:', streak)
       clearInterval(interval)
     };
   }, [streak])
 
-  if(streak == 0) {
+  if (streak == 0) {
     return null;
   }
 
   return (
     <div className="text-slate-300 font-bold flex ml-4 flex-col justify-center animate-excitement absolute top-1 right-8"
-       style={{
-         animationDuration: `${Math.max(5, 30-streak) * 0.1}s`,
-         fontSize: `${Math.sqrt(Math.max(10, streak) * 2)}rem`,
-       }}>
+      style={{
+        animationDuration: `${Math.max(5, 30 - streak) * 0.1}s`,
+        fontSize: `${Math.sqrt(Math.max(10, streak) * 2)}rem`,
+      }}>
       {streak}
     </div>
   )
@@ -245,7 +253,7 @@ function Instructions({ onStart }) {
       <div className="absolute w-full h-full bg-black opacity-20"></div>
       <div className="absolute w-full h-full backdrop-blur-sm"></div>
 
-      <div className="absolute w-1/2 text-center bg-white rounded-xl p-8 shadow" style={{maxWidth: "40rem"}}>
+      <div className="absolute w-1/2 text-center bg-white rounded-xl p-8 shadow" style={{ maxWidth: "40rem" }}>
         <h1 className="text-4xl font-extrabold">10 Key Queen 👸</h1>
         <p className="mt-4 text-xl">
           You'll be shown a table on the left, <br />
@@ -265,11 +273,11 @@ function Instructions({ onStart }) {
 }
 
 function Score({ duration, cellCount, onClose, mistakes }) {
-  const {audioEnabled} = React.useContext(AudioContext);
-  const [playFlawless] = useSound('./flawless.mp3',{ volume: 0.35, soundEnabled : audioEnabled});
+  const { audioEnabled } = React.useContext(AudioContext);
+  const [playFlawless] = useSound('./flawless.mp3', { volume: 0.35, soundEnabled: audioEnabled });
 
 
-  if(mistakes == 0) {
+  if (mistakes == 0) {
     playFlawless();
   }
 
@@ -285,7 +293,7 @@ function Score({ duration, cellCount, onClose, mistakes }) {
           <br />
           That was {((duration / 1000) / cellCount).toPrecision(3)} seconds per cell.
           <br />
-          <span className="text-lg mt-4 inline-block text-slate-400">You made {mistakes} {mistakes == 1 ? 'mistake': 'mistakes'}.</span>
+          <span className="text-lg mt-4 inline-block text-slate-400">You made {mistakes} {mistakes == 1 ? 'mistake' : 'mistakes'}.</span>
         </p>
         <button
           onClick={onClose}
@@ -304,18 +312,18 @@ function GameControls({ requestReset, children, isComplete, cellCount }) {
   const [startTime, setStartTime] = React.useState(null);
   const [endTime, setEndTime] = React.useState(null);
 
-  const {audioEnabled} = React.useContext(AudioContext);
-  const [playWin] = useSound('./win.mp3',{ volume: 0.5, soundEnabled : audioEnabled});
+  const { audioEnabled } = React.useContext(AudioContext);
+  const [playWin] = useSound('./win.mp3', { volume: 0.5, soundEnabled: audioEnabled });
 
   const [mistakes, setMistakes] = React.useState(0);
   const [streak, setStreak] = React.useState(0);
   const [resetAllAnswersRequest, setResetAllAnswersRequest] = React.useState(0);
 
   const onWrongValueEntered = () => {
-    setMistakes(mistakes => mistakes +1);
+    setMistakes(mistakes => mistakes + 1);
     setStreak(0);
 
-    if(GAME_MODE.includes('core')) {
+    if (GAME_MODE.includes('core')) {
       setResetAllAnswersRequest(request => request + 1);
     }
   }
@@ -353,8 +361,8 @@ function GameControls({ requestReset, children, isComplete, cellCount }) {
 
       <h1 className="h-14 text-4xl font-extrabold">{state == 'playing' ? '10 Key Queen 👸' : ''}</h1>
 
-      <SteaksContext.Provider value={{onWrongValueEntered, onCorrectValueEntered, resetAllAnswersRequest}}>
-        {state == 'playing' &&  <StreakCounter streak={streak}/>}
+      <SteaksContext.Provider value={{ onWrongValueEntered, onCorrectValueEntered, resetAllAnswersRequest }}>
+        {state == 'playing' && <StreakCounter streak={streak} />}
         {children}
       </SteaksContext.Provider>
 
@@ -366,11 +374,11 @@ function GameControls({ requestReset, children, isComplete, cellCount }) {
 }
 
 function SoundPreference() {
-  const {audioEnabled, setAudioEnabled} = React.useContext(AudioContext);
+  const { audioEnabled, setAudioEnabled } = React.useContext(AudioContext);
 
   return (
     <button className="text-slate-400 hover:bg-slate-300 p-4 rounded-full"
-        onClick={()=> {setAudioEnabled(!audioEnabled)}}>
+      onClick={() => { setAudioEnabled(!audioEnabled) }}>
       <span className="flex">
         {audioEnabled ? <SoundOnIcon /> : <SoundOffIcon />}
       </span>
